@@ -6,12 +6,16 @@ import ckan.lib.helpers as h
 
 
 class Helper():
-    
+
     @staticmethod
     def which_sfb():
         '''
             Check which sfb server the plugin is runnung in. 
         '''
+
+        project_id = str(toolkit.config.get('ckanext.crc.project.id') or '').strip()
+        if project_id in {'1153', '1368'}:
+            return project_id
 
         ckan_root_path = toolkit.config.get('ckan.root_path')
         if  ckan_root_path and 'sfb1368/ckan' in ckan_root_path:
@@ -25,16 +29,18 @@ class Helper():
 
     @staticmethod
     def check_plugin_enabled(plugin_name):
-        plugins = toolkit.config.get("ckan.plugins")
-        if plugin_name in plugins:
-            return True
-        return False
+        configured_plugins = toolkit.config.get("ckan.plugins", [])
+        if isinstance(configured_plugins, str):
+            configured_plugins = configured_plugins.split()
+        return plugin_name in configured_plugins
     
 
     @staticmethod
     def stages_count():
         plugins_with_stages = ['resource_custom_metadata', 'organization_group', 'semantic_media_wiki', 'sample_link']
-        enabled_plugins = toolkit.config.get("ckan.plugins")
+        enabled_plugins = toolkit.config.get("ckan.plugins", [])
+        if isinstance(enabled_plugins, str):
+            enabled_plugins = enabled_plugins.split()
         count = 0
         for pl in plugins_with_stages:
             if pl in enabled_plugins:
@@ -102,24 +108,21 @@ class Helper():
 
     @staticmethod
     def search_query_prepration(query):
-        if "sample:" in query:
-            return [query.split(":")[1], "sample"]
-        elif "column:" in query:
-            return [query.split(":")[1], "column"]
-        elif "material_combination:" in query:
-            return [query.split(":")[1], "material_combination"]
-        elif "surface_preparation:" in query:
-            return [query.split(":")[1], "surface_preparation"]
-        elif "atmosphere:" in query:
-            return [query.split(":")[1], "atmosphere"]
-        elif "data_type:" in query:
-            return [query.split(":")[1], "data_type"]
-        elif "analysis_method:" in query:
-            return [query.split(":")[1], "analysis_method"]
-        elif "publication:" in query:
-            return [query.split(":")[1], "publication"]
-        else:
-            return [query, '0']
+        search_types = {
+            'sample',
+            'column',
+            'material_combination',
+            'surface_preparation',
+            'atmosphere',
+            'data_type',
+            'analysis_method',
+            'publication',
+        }
+        prefix, separator, value = (query or '').partition(':')
+        prefix = prefix.strip().lower()
+        if separator and prefix in search_types:
+            return [value.strip(), prefix]
+        return [query or '', '0']
     
 
 
@@ -131,31 +134,23 @@ class Helper():
     
 
     @staticmethod
-    def get_export_url(dataset_name, format):        
-        base_url = toolkit.config.get('ckan.site_url')
-        path = toolkit.config.get('ckan.root_path')                      
-        if path:
-            path = path.split("{{LANG}}")[0]
-            return base_url + path + 'dataset/' + dataset_name + format
-        return base_url + '/dataset/' + dataset_name + format
+    def get_export_url(dataset_name, export_format):
+        base_url = (toolkit.config.get('ckan.site_url') or '').rstrip('/')
+        root_path = (toolkit.config.get('ckan.root_path') or '').split('{{LANG}}')[0].strip('/')
+        path_parts = [part for part in (root_path, 'dataset', dataset_name + export_format) if part]
+        return base_url + '/' + '/'.join(path_parts)
 
 
    
+    @staticmethod
     def get_json(dataset_name):
-        package = toolkit.get_action('package_show')({}, {'name_or_id': dataset_name})
-        if not Helper.check_access_show_package(package['id']):
-                return toolkit.abort(403, "Not Authorized")
-       
-        return package
-       
-
-    def check_access_show_package(package_id):
-        context = {'user': toolkit.g.user, 'auth_user_obj': toolkit.g.userobj}
-        data_dict = {'id':package_id}
+        context = {
+            'user': toolkit.g.user,
+            'auth_user_obj': toolkit.g.userobj,
+        }
         try:
-            toolkit.check_access('package_show', context, data_dict)
-            return True
-
+            return toolkit.get_action('package_show')(context, {'id': dataset_name})
+        except toolkit.ObjectNotFound:
+            return toolkit.abort(404, toolkit._('Dataset not found'))
         except toolkit.NotAuthorized:
-            return False
-    
+            return toolkit.abort(403, toolkit._('Not authorized to see this dataset'))
