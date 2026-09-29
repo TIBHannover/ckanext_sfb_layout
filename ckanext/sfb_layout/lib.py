@@ -37,16 +37,11 @@ class Helper():
 
     @staticmethod
     def stages_count():
-        plugins_with_stages = ['resource_custom_metadata', 'organization_group', 'semantic_media_wiki', 'sample_link']
+        plugins_with_stages = ['resource_custom_metadata', 'organization_group', 'machine_link', 'sample_link']
         enabled_plugins = toolkit.config.get("ckan.plugins", [])
         if isinstance(enabled_plugins, str):
             enabled_plugins = enabled_plugins.split()
-        count = 0
-        for pl in plugins_with_stages:
-            if pl in enabled_plugins:
-                count += 1
-        
-        return count
+        return sum(plugin in enabled_plugins for plugin in plugins_with_stages)
 
 
     @staticmethod

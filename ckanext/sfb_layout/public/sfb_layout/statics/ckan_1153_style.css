@@ -1,6 +1,6 @@
-/* #content{
-    margin: 10px;
-  } */
+.main > #content.container {
+  max-width: 100%;
+}
   
   .sfb-header-container{
     margin-left: 10px;

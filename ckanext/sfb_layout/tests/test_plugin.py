@@ -37,14 +37,18 @@ def test_plugin_detection_supports_string_and_list_config(monkeypatch, configure
     assert Helper.check_plugin_enabled('user_manual') is expected
 
 
-def test_stage_count_uses_exact_plugin_names(monkeypatch):
-    monkeypatch.setitem(
-        toolkit.config,
-        'ckan.plugins',
-        ['sfb_layout', 'resource_custom_metadata', 'organization_group', 'sample_link_extra'],
-    )
+@pytest.mark.parametrize(
+    ('configured_plugins', 'expected'),
+    [
+        (['sfb_layout', 'resource_custom_metadata', 'organization_group', 'sample_link_extra'], 2),
+        ('sfb_layout resource_custom_metadata machine_link sample_link_extra', 2),
+        ([], 0),
+    ],
+)
+def test_stage_count_uses_exact_plugin_names(monkeypatch, configured_plugins, expected):
+    monkeypatch.setitem(toolkit.config, 'ckan.plugins', configured_plugins)
 
-    assert Helper.stages_count() == 2
+    assert Helper.stages_count() == expected
 
 
 @pytest.mark.parametrize('project_id', ['1153', '1368'])

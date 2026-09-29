@@ -3,7 +3,7 @@
 {% block resource_actions_inner %}
   {% if h.is_enabled('data_comparision') %}
     <li>
-      <a href="{{ h.url_for('data_comparision.base_view', package_name=pkg.name, resId=resource.id) }}"
+      <a href="{{ h.url_for('data_comparision.base_view', package_name=pkg.name, resource_id=resource.id) }}"
          class="btn btn-primary">{{ _('Data Comparison') }}</a>
     </li>
   {% endif %}
@@ -30,13 +30,13 @@
             {% endif %}
           </td>
         </tr>
-        {% if h.is_enabled('semantic_media_wiki') %}
+        {% if h.is_enabled('machine_link') %}
           {% asset 'ckanext-semantic-media-wiki/resource-machine-js' %}
           <tr>
             <th scope="row">{{ _('Linked Equipment') }}</th>
             <td>
               <input type="hidden" id="get_link_url"
-                     value="{{ h.url_for('semantic_media_wiki.get_resource_machine', id=resource.id) }}">
+                     value="{{ h.url_for('machine_link.get_resource_machine', id=resource.id) }}">
               <div id="equipment_list"></div>
             </td>
           </tr>
