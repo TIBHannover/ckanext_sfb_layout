@@ -3,7 +3,7 @@
 {% block resource_actions_inner %}
   {% if h.is_enabled('data_comparision') %}
     <li>
-      <a href="{{ h.url_for('data_comparision.base_view', package_name=pkg.name, resId=resource.id) }}"
+      <a href="{{ h.url_for('data_comparision.base_view', package_name=pkg.name, resource_id=resource.id) }}"
          class="btn btn-primary">{{ _('Data Comparison') }}</a>
     </li>
   {% endif %}
