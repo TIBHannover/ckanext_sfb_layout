@@ -9,14 +9,16 @@
 {% asset 'ckanext-sfb-layout/search-css' %}
 {% asset 'ckanext-sfb-layout/search-js' %}
 
+{% set show_search_type = h.is_selection_needed(form_id) and h.is_enabled('sfb_search') %}
+<form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" method="get" data-module="select-switch">
 <hr>
 {% block search_input %}
-  <input type="hidden" id="selected_search_type" value="{{h.query_prepration(query)[1]}}">
-  <div class="row">
-    {% if h.is_selection_needed(form_id) and h.is_enabled("sfb_search"): %}
-        <div class="col-sm-4">
-          <label for="search-type-dropdown">{{_('Search type')}}</label>
-          <select  id="search-type-dropdown">
+  <input type="hidden" id="selected_search_type" value="{{ h.query_prepration(query)[1] }}">
+  <div class="row g-3 align-items-end sfb-search-controls">
+    {% if show_search_type %}
+        <div class="col-md-4">
+          <label class="form-label" for="search-type-dropdown">{{ _('Search type') }}</label>
+          <select id="search-type-dropdown" class="form-select">
             <option value="0">Simple Search</option>            
             <option value="column">Search in csv/xlsx resource (files) Columns</option>
             <option value="publication">Search based on Publication</option>      
@@ -31,18 +33,15 @@
             {% endif %}
           </select>
         </div>
-      {% endif %}
-      <form {% if form_id %}id="{{ form_id }}" {% endif %}class="search-form{% if no_bottom_border %} no-bottom-border{% endif %}" method="get" data-module="select-switch">      
-      <div class="col-sm-8">
+    {% endif %}
+      <div class="{% if show_search_type %}col-md-8{% else %}col-12{% endif %}">
         <div class="input-group search-input-group">
-          <input id="field-giant-search" type="hidden" class="form-control input-lg" name="q" value="{{ query }}">
-          <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search-mimic" type="text" class="form-control input-lg" value="{{ h.query_prepration(query)[0] }}" autocomplete="off" placeholder="{{ placeholder }}">
+          <input id="field-giant-search" type="hidden" name="q" value="{{ query }}">
+          <input aria-label="{% block header_site_search_label %}{{ placeholder }}{% endblock %}" id="field-giant-search-mimic" type="text" class="form-control form-control-lg" value="{{ h.query_prepration(query)[0] }}" autocomplete="off" placeholder="{{ placeholder }}">
           {% block search_input_button %}
-          <span class="input-group-btn">
-            <button class="btn btn-default btn-lg"  type="submit" value="search" aria-label="{{_('Submit')}}">
+            <button class="btn btn-default btn-lg" type="submit" value="search" aria-label="{{ _('Submit') }}">
               <i class="fa fa-search"></i>
             </button>
-          </span>
           {% endblock %}    
         </div>
       </div>
@@ -57,9 +56,9 @@
 
   {% block search_sortby %}
     {% if sorting %}
-      <div class="form-select form-group control-order-by" id="result-order-selection">
+      <div class="form-group control-order-by" id="result-order-selection">
         <label for="field-order-by">{{ _('Order by') }}</label>
-        <select id="field-order-by" name="sort" class="form-control">
+        <select id="field-order-by" name="sort" class="form-control form-select">
           {% for label, value in sorting %}
             {% if label and value %}
               <option value="{{ value }}"{% if sorting_selected == value %} selected="selected"{% endif %}>{{ label }}</option>
