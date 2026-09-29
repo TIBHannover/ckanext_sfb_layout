@@ -4,7 +4,7 @@
   {{ super() }}
   {% if h.which_sfb() == '1368' %}
       {% asset 'ckanext-sfb-layout/sfb1368-css' %}
-  {% else: %}  
+  {% else %}
       {% asset 'ckanext-sfb-layout/sfb1153-css' %}
   {% endif %}
 {% endblock %}
@@ -14,7 +14,7 @@
   {{ super() }}
   {% if h.which_sfb() == '1368' %}
       {% asset 'ckanext-sfb-layout/sfb1368-js' %}
-  {% else: %}  
+  {% else %}
       {% asset 'ckanext-sfb-layout/sfb1153-js' %}
   {% endif %}
 {% endblock -%}
