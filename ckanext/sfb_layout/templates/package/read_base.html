@@ -3,28 +3,28 @@
 {% block package_social %}{% endblock %}
 
 {% block package_license %}
-    {{ super() }}    
+    {{ super() }}
     <section class="module module-narrow module-shallow license">
         <h2 class="module-heading"><i class="fa fa-cogs"></i> {{ _('Export Dataset Metadata') }}</h2>
         <div class="row dcat-export-link">
             <div class="col-sm-12">
-                <a href={{ h.get_export_url(pkg_dict['name'], '.rdf')}} target="_blank"><i class="fa fa-external-link"></i> RDF</a>
+                <a href="{{ h.get_export_url(pkg.name, '.rdf') }}" target="_blank" rel="noreferrer"><i class="fa fa-external-link"></i> RDF</a>
             </div>
         </div>
         <div class="row dcat-export-link">
             <div class="col-sm-12">
-                <a href={{ h.url_for('sfb_layout.get_json', dataset_name=pkg_dict['name'], _external=True) }} target="_blank"><i class="fa fa-external-link"></i> JSON</a>
-            </div>
-        </div>  
-        <div class="row dcat-export-link">
-            <div class="col-sm-12">
-                <a href={{ h.get_export_url(pkg_dict['name'], '.xml')}} target="_blank"><i class="fa fa-external-link"></i> XML</a>
+                <a href="{{ h.url_for('sfb_layout.get_json', dataset_name=pkg.name) }}" target="_blank" rel="noreferrer"><i class="fa fa-external-link"></i> JSON</a>
             </div>
         </div>
         <div class="row dcat-export-link">
             <div class="col-sm-12">
-                <a href={{ h.get_export_url(pkg_dict['name'], '.ttl')}} target="_blank"><i class="fa fa-external-link"></i> TTL</a>
+                <a href="{{ h.get_export_url(pkg.name, '.xml') }}" target="_blank" rel="noreferrer"><i class="fa fa-external-link"></i> XML</a>
             </div>
-        </div>     
+        </div>
+        <div class="row dcat-export-link">
+            <div class="col-sm-12">
+                <a href="{{ h.get_export_url(pkg.name, '.ttl') }}" target="_blank" rel="noreferrer"><i class="fa fa-external-link"></i> TTL</a>
+            </div>
+        </div>
     </section>
 {% endblock %}

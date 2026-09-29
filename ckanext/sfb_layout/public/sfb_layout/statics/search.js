@@ -1,25 +1,21 @@
 $(document).ready(function(){
-    let pre_select_value = $("#selected_search_type").val();
-    $('#search-type-dropdown').select2({ width: '100%' });
-    $('#search-type-dropdown').select2('val', pre_select_value);
+    const $searchType = $('#search-type-dropdown');
+    const selectedSearchType = $('#selected_search_type').val();
+    if ($searchType.length) {
+        $searchType.select2({ width: '100%' });
+        $searchType.val(selectedSearchType).trigger('change');
+    }
 
-    $('.search-form').submit(function(e){        
-        if($('#search-type-dropdown').length !== 0){
+    $('.search-form').on('submit', function(e){
+        const $form = $(this);
+        const $dropdown = $form.find('#search-type-dropdown');
+        if($dropdown.length){
             e.preventDefault();
-            let searchType = $('#search-type-dropdown').val();
-            let searchPhrase = $('#field-giant-search-mimic').val();
-            if (searchType !== '0'){
-                $('#field-giant-search').val('');
-                $('#field-giant-search').val(searchType + ":" + searchPhrase);
-            }
-            else{
-                $('#field-giant-search').val('');
-                $('#field-giant-search').val(searchPhrase);
-            }
-            $('.search-form')[0].submit();
+            const searchType = $dropdown.val();
+            const searchPhrase = $form.find('#field-giant-search-mimic').val();
+            const query = searchType !== '0' ? searchType + ':' + searchPhrase : searchPhrase;
+            $form.find('#field-giant-search').val(query);
+            this.submit();
         }
-        else{
-            $('.search-form')[0].submit();        
-        }        
     });
 });
