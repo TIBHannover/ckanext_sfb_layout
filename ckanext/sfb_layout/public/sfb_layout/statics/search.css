@@ -1,7 +1,7 @@
-#field-order-by{
-    width: 100% !important;    
+.sfb-search-controls {
+    margin-bottom: 1rem;
 }
 
-#result-order-selection{
-    float: right;
+.sfb-search-controls .search-input-group {
+    margin-bottom: 0;
 }

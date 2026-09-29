@@ -4,9 +4,10 @@
   {% asset 'ckanext-sfb-layout/search-css' %}
   {% asset 'ckanext-sfb-layout/search-js' %}
 
+  {% set show_search_type = h.is_selection_needed(form_id) and h.is_enabled('sfb_search') %}
   <input type="hidden" id="selected_search_type" value="{{ h.query_prepration(query)[1] }}">
-  <div class="row g-3 align-items-end">
-    {% if h.is_selection_needed(form_id) and h.is_enabled('sfb_search') %}
+  <div class="row g-3 align-items-end sfb-search-controls">
+    {% if show_search_type %}
       <div class="col-md-4">
         <label class="form-label" for="search-type-dropdown">{{ _('Search type') }}</label>
         <select class="form-select" id="search-type-dropdown">
@@ -25,10 +26,10 @@
         </select>
       </div>
     {% endif %}
-    <div class="{% if h.is_selection_needed(form_id) and h.is_enabled('sfb_search') %}col-md-8{% else %}col-12{% endif %}">
+    <div class="{% if show_search_type %}col-md-8{% else %}col-12{% endif %}">
       <div class="input-group search-input-group">
         <input id="field-giant-search" type="hidden" name="q" value="{{ query }}">
-        <input id="field-giant-search-mimic" type="text" class="form-control input-lg"
+        <input id="field-giant-search-mimic" type="text" class="form-control input-lg form-control-lg"
                value="{{ h.query_prepration(query)[0] }}" autocomplete="off"
                placeholder="{{ placeholder }}" aria-label="{{ placeholder }}">
         {% block search_input_button %}

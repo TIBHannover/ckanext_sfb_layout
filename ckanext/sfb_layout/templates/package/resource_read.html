@@ -24,156 +24,19 @@
           <th scope="row">{{ _('Data resource URL') }}</th>
           <td>
             {% if res.url and h.is_url(res.url) %}
-              <li>
-                <div class="btn-group">
-                <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
-                  {% if res.resource_type in ('listing', 'service') %}
-                    <i class="fa fa-eye"></i> {{ _('View') }}
-                  {% elif  res.resource_type == 'api' %}
-                    <i class="fa fa-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views and not res.url_type == 'upload' %}
-                    <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
-                  {% else %}
-                    <i class="fa fa-arrow-circle-o-down"></i> {{ _('Download') }}
-                  {% endif %}
-                </a>
-                {% block download_resource_button %}
-                  {% if res.datastore_active %}
-                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                    <span class="caret"></span>
-                  </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a href="{{ h.url_for('datastore.dump', resource_id=res.id, bom=True) }}"
-                      target="_blank"><span>CSV</span></a>
-                    <a href="{{ h.url_for('datastore.dump', resource_id=res.id, format='tsv', bom=True) }}"
-                      target="_blank"><span>TSV</span></a>
-                    <a href="{{ h.url_for('datastore.dump', resource_id=res.id, format='json') }}"
-                      target="_blank"><span>JSON</span></a>
-                    <a href="{{ h.url_for('datastore.dump', resource_id=res.id, format='xml') }}"
-                      target="_blank"><span>XML</span></a>
-                  </li>
-                </ul>
-                  {% endif %}
-                {% endblock %}
-                </div>
-              </li>
-            {% endif %}
-            {% endblock %}
-          </ul>
-          {% endblock %}
-        </div>
-        {% block resource_content %}
-          {% block package_archive_notice %}
-            {% if is_activity_archive %}
-              <div id="activity-archive-notice" class="alert alert-danger">
-                {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
-                You're currently viewing an old version of this dataset. To see the
-                current version, click <a href="{{ url }}">here</a>.
-                {% endtrans %}
-              </div>
-            {% endif %}
-          {% endblock %}
-          {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
-          {% block resource_read_url %}
-              <div class="module-content">               
-                <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more" id="data-resource-sfb-table">
-                    <thead>
-                    <tr>
-                        <th scope="col">{{ _('Field') }}</th>
-                        <th scope="col">{{ _('Value') }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th scope="row">{{ _('Data resource url') }}</th>
-                        {% if res.url and h.is_url(res.url) %}
-                            <td> <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></td>
-                        {% elif res.url %}
-                          <p class="text-muted break-word">{{ _('URL:') }} {{ res.url }}</p>
-                          <td>{{ res.url }}</td>
-                        {% endif %}                        
-                    </tr>                                                            
-                    {# machine links #}
-                    {% if h.is_enabled("machine_link") %}
-                      {% asset 'ckanext-semantic-media-wiki/resource-machine-js' %}
-                      <tr>                           
-                        {% set resource_id = resource['id']  %}
-                        {% set dest_url = h.url_for('machine_link.get_resource_machine', id=resource_id, _external=True) %}                            
-                        <input type="hidden" id="get_link_url" value='{{dest_url}}'>
-                        <th scope="row">{{ _('Linked Equipment') }}</th>
-                        <td><div id="equipment_list"></div></td>
-                      </tr>
-                    {% endif %}
-                    {# sample links #}
-                    {% if h.is_enabled("sample_link") %}
-                      {% asset 'ckanext-sample-link/resource-sample-js' %}
-                      <tr>                          
-                        {% set resource_id = resource['id']  %}
-                        {% set dest_url = h.url_for('sample_link.get_resource_sample', id=resource_id, _external=True) %}
-                        <input type="hidden" id="get_sample_url" value='{{dest_url}}'>
-                        <th scope="row">{{ _('Linked Samples') }}</th>
-                        <td><div id="sample_list"></td>  
-                      </tr>
-                    {% endif %}
-                    {# sfb metadata #}
-                    {% if h.is_enabled("resource_custom_metadata") %}
-                        <tr>
-                            <th scope="row">{{ _('Material or Material Combination') }}</th>
-                            <td>{{ res.material_combination }}</td>
-                        </tr>    
-                        <tr>
-                            <th scope="row">{{ _('Surface Preparation') }}</th>
-                            <td>{{ res.surface_preparation }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{{ _('Atmosphere') }}</th>
-                            <td>{{ res.atmosphere }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{{ _('Data type (mechanical, chemical ...)') }}</th>
-                            <td>{{ res.data_type }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{{ _('Measurement/Analysis Method') }}</th>
-                            <td>{{ res.analysis_method }}</td>
-                        </tr>
-                    {% endif %}                                        
-                    </tbody>
-                </table>
-            </div>
-
-            {# data vis preview #}
-            {% if h.is_enabled("data_comparision") %}
-                {% asset 'ckanext-data-comparision/resource-page-js' %}
-                <input type="hidden" id="resource_plot_preview_url" value={{h.url_for('data_comparision.get_one_resource_plot_data', resource_id=resource['id'] , _external=True)}}>
-                <div class="row"  id="analysis-result-area">
-                    <div class="col-sm-12" id="resource-preview-canvas-area">                        
-                        <div class="col-sm-4 plot-col-box">
-                            <div class="row text-center attemp-to-plot-loading">
-                              <h3>Attemp to Plot</h3>
-                              <div class="col-sm-12">
-                                  <div class="jumping-dots-loader">
-                                      <span></span>
-                                      <span></span>
-                                      <span></span>
-                                  </div>
-                              </div>
-                          </div>   
-                            <canvas id="resultPlot" width="300" height="200"></canvas>    
-                        </div>
-                    </div>              
-                </div>
+              <a class="resource-url-analytics" href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a>
+            {% else %}
+              {{ res.url }}
             {% endif %}
           </td>
         </tr>
-        {% if h.is_enabled('semantic_media_wiki') %}
+        {% if h.is_enabled('machine_link') %}
           {% asset 'ckanext-semantic-media-wiki/resource-machine-js' %}
           <tr>
             <th scope="row">{{ _('Linked Equipment') }}</th>
             <td>
               <input type="hidden" id="get_link_url"
-                     value="{{ h.url_for('semantic_media_wiki.get_resource_machine', id=resource.id) }}">
+                     value="{{ h.url_for('machine_link.get_resource_machine', id=resource.id) }}">
               <div id="equipment_list"></div>
             </td>
           </tr>
@@ -211,56 +74,7 @@
             <h3>{{ _('Attempting to plot') }}</h3>
             <div class="jumping-dots-loader"><span></span><span></span><span></span></div>
           </div>
-        {% endblock %}
-      {% if not is_activity_archive %}
-      {% block data_preview %}
-      {% block resource_view %}
-        {% block resource_view_nav %}
-          {% snippet "package/snippets/resource_views_list.html",
-             views=resource_views,
-             pkg=pkg,
-             is_edit=false,
-             view_id=current_resource_view['id'],
-             resource=resource,
-             extra_class="nav-tabs nav-tabs-plain"
-           %}
-        {% endblock %}
-          {% block resource_view_content %}
-            <div class="resource-view">
-              {% if resource_views %}
-                {% for resource_view in resource_views %}
-                  {% if resource_view == current_resource_view %}
-                    {% snippet 'package/snippets/resource_view.html',
-                       resource_view=resource_view,
-                       resource=resource,
-                       package=package
-                     %}
-                  {% endif %}
-                {% endfor %}
-              {% else %}
-                {# Views not created #}
-                <div class="data-viewer-info">
-                  <p>{{ _("There are no views created for this resource yet.") }}</p>
-                  {% if h.check_access('resource_view_create', {'resource_id': resource.id}) %}
-                    <p class="text-muted">
-                      <i class="fa fa-info-circle"></i>
-                      {{ _("Not seeing the views you were expecting?")}}
-                      <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">
-                        {{ _('Click here for more information.') }}</a>
-                    </p>
-                    <div id="data-view-info" class="collapse">
-                      <p>{{ _('Here are some reasons you may not be seeing expected views:') }}</p>
-                      <ul>
-                        <li>{{ _("No view has been created that is suitable for this resource")}}</li>
-                        <li>{{ _("The site administrators may not have enabled the relevant view plugins")}}</li>
-                        <li>{{ _("If a view requires the DataStore, the DataStore plugin may not be enabled, or the data may not have been pushed to the DataStore, or the DataStore hasn't finished processing the data yet")}}</li>
-                      </ul>
-                    </div>
-                  {% endif %}
-                </div>
-              {% endif %}
-            </div>
-          {% endblock %}
+          <canvas id="resultPlot" width="300" height="200"></canvas>
         </div>
       </div>
     </div>
