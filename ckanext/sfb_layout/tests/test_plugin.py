@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 import ckan.plugins as plugins
@@ -7,6 +9,16 @@ from flask import Flask
 
 from ckanext.sfb_layout.lib import Helper
 from ckanext.sfb_layout.plugin import SfbLayoutPlugin
+
+
+@pytest.mark.parametrize('stylesheet', ['ckan_1153_style.css', 'ckan_style.css'])
+def test_project_stylesheets_use_full_width_layout(stylesheet):
+    statics = Path(__file__).parents[1] / 'public' / 'sfb_layout' / 'statics'
+
+    css = (statics / stylesheet).read_text()
+
+    assert '.main > #content.container {' in css
+    assert 'max-width: 100%;' in css
 
 
 @pytest.mark.ckan_config('ckan.plugins', 'sfb_layout')
