@@ -12,7 +12,6 @@ sfb1368-js:
       - vendor/vendor
       - vendor/bootstrap
       - vendor/jquery
-      - vendor/jquery.ui.core
   contents:
     - ckan_1368.js
 
@@ -30,7 +29,6 @@ sfb1153-js:
       - vendor/vendor
       - vendor/bootstrap
       - vendor/jquery
-      - vendor/jquery.ui.core
   contents:
     - ckan_1153.js
 
@@ -56,7 +54,6 @@ stages-js:
       - vendor/vendor
       - vendor/bootstrap
       - vendor/jquery
-      - vendor/jquery.ui.core
   contents:
     - stages.js
 
@@ -69,6 +66,5 @@ search-js:
       - vendor/vendor
       - vendor/bootstrap
       - vendor/jquery
-      - vendor/jquery.ui.core
   contents:
     - search.js

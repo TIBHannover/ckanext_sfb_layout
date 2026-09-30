@@ -1,6 +1,8 @@
+import logging
 from pathlib import Path
 
 import pytest
+import yaml
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
@@ -9,6 +11,38 @@ from flask import Flask
 
 from ckanext.sfb_layout.lib import Helper
 from ckanext.sfb_layout.plugin import SfbLayoutPlugin
+
+
+ASSET_ROOT = Path(__file__).parents[1] / 'public' / 'sfb_layout' / 'statics'
+JAVASCRIPT_BUNDLES = {
+    'search-js': ['search.js'],
+    'sfb1153-js': ['ckan_1153.js'],
+    'sfb1368-js': ['ckan_1368.js'],
+    'stages-js': ['stages.js'],
+}
+
+
+def test_javascript_bundle_definitions_have_local_contents_and_no_jquery_ui():
+    bundles = yaml.safe_load((ASSET_ROOT / 'webassets.yml').read_text())
+
+    for name, contents in JAVASCRIPT_BUNDLES.items():
+        assert bundles[name]['contents'] == contents
+        assert 'vendor/jquery.ui.core' not in bundles[name]['extra']['preload']
+        assert all((ASSET_ROOT / filename).is_file() for filename in contents)
+
+
+@pytest.mark.ckan_config('ckan.plugins', 'sfb_layout')
+@pytest.mark.usefixtures('with_plugins')
+@pytest.mark.parametrize('bundle_name', JAVASCRIPT_BUNDLES)
+def test_javascript_bundles_include_without_unknown_assets(app, caplog, bundle_name):
+    from ckan.lib.webassets_tools import include_asset
+
+    caplog.set_level(logging.ERROR, logger='ckan.lib.webassets_tools')
+
+    with app.flask_app.test_request_context('/'):
+        include_asset('ckanext-sfb-layout/' + bundle_name)
+
+    assert 'Trying to include unknown asset' not in caplog.text
 
 
 @pytest.mark.parametrize('stylesheet', ['ckan_1153_style.css', 'ckan_style.css'])
