@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -11,6 +12,8 @@ from flask import Flask
 
 from ckanext.sfb_layout.lib import Helper
 from ckanext.sfb_layout.plugin import SfbLayoutPlugin
+from ckanext.sfb_layout.stats import SystemStats
+from ckanext.sfb_layout.system_stats_plugin import SystemStatsPlugin
 
 
 ASSET_ROOT = Path(__file__).parents[1] / 'public' / 'sfb_layout' / 'statics'
@@ -67,6 +70,153 @@ def test_blueprint_registers_json_export_route():
     rules = {rule.rule for rule in flask_app.url_map.iter_rules()}
 
     assert '/sfb_layout/get_json/<dataset_name>' in rules
+
+
+def test_system_stats_blueprint_registers_admin_route():
+    blueprint = SystemStatsPlugin().get_blueprint()
+    flask_app = Flask(__name__)
+    flask_app.register_blueprint(blueprint)
+    rules = {rule.rule for rule in flask_app.url_map.iter_rules()}
+
+    assert '/system_stats/stats_page' in rules
+
+
+@pytest.mark.ckan_config('ckan.plugins', 'system_stats')
+def test_system_stats_plugin_loads_separately(with_plugins):
+    assert plugins.plugin_loaded('system_stats')
+
+
+@pytest.mark.ckan_config('ckan.plugins', 'sfb_layout system_stats')
+@pytest.mark.ckan_config('ckanext.crc.project.id', '1368')
+def test_system_stats_rejects_non_sysadmins(app, with_plugins):
+    response = app.get('/system_stats/stats_page')
+
+    assert response.status_code == 403
+
+
+@pytest.mark.ckan_config('ckan.plugins', 'sfb_layout system_stats')
+@pytest.mark.ckan_config('ckanext.crc.project.id', '1153')
+def test_system_stats_is_not_available_for_sfb_1153(app, with_plugins):
+    response = app.get('/system_stats/stats_page')
+
+    assert response.status_code == 404
+
+
+@pytest.mark.ckan_config('ckan.plugins', 'sfb_layout system_stats')
+@pytest.mark.ckan_config('ckanext.crc.project.id', '1368')
+def test_system_stats_page_and_core_calculations(clean_db, app, with_plugins):
+    sysadmin = factories.Sysadmin()
+    token = factories.APIToken(user=sysadmin['id'])['token']
+    factories.User()
+    organization = factories.Organization(title='Test organization')
+    factories.Dataset(
+        user=sysadmin,
+        owner_org=organization['id'],
+        title='Statistics dataset',
+        resources=[
+            {
+                'url': 'https://example.test/data.csv',
+                'format': 'CSV',
+            }
+        ],
+    )
+
+    response = app.get(
+        '/system_stats/stats_page',
+        headers={'Authorization': token},
+    )
+
+    assert response.status_code == 200
+    assert b'Overall stats' in response.data
+    assert b'Test organization: 1' in response.data
+    assert b'csv: 1' in response.data
+    assert SystemStats.get_dataset_count() == 1
+    assert SystemStats.get_user_count() == 1
+
+
+def test_optional_statistics_are_empty_when_plugins_are_disabled(monkeypatch):
+    monkeypatch.setitem(toolkit.config, 'ckan.plugins', 'sfb_layout system_stats')
+
+    assert SystemStats.get_linked_machines_count([]) == (0, 0)
+    assert SystemStats.get_linked_samples_count([]) == (0, 0)
+    assert SystemStats.get_linked_publications_count([]) == 0
+    assert SystemStats.get_dataset_with_publication([]) == []
+    assert SystemStats.get_dataset_with_machines([]) == []
+    assert SystemStats.get_dataset_with_samples([]) == []
+    assert SystemStats.get_dataset_with_publication_per_group([]) == {}
+
+
+def test_machine_and_sample_statistics_count_resources_and_datasets(monkeypatch):
+    resources = [
+        SimpleNamespace(id='linked', state='active'),
+        SimpleNamespace(id='unlinked', state='active'),
+        SimpleNamespace(id='inactive', state='deleted'),
+    ]
+    datasets = [
+        SimpleNamespace(title='Linked dataset', resources=resources),
+        SimpleNamespace(
+            title='Unlinked dataset',
+            resources=[SimpleNamespace(id='unlinked', state='active')],
+        ),
+    ]
+    monkeypatch.setattr(
+        Helper,
+        'check_plugin_enabled',
+        lambda name: name in {'machine_link', 'sample_link'},
+    )
+    monkeypatch.setattr(
+        SystemStats,
+        '_machine_links',
+        lambda resource_id: {'machine': 'url'} if resource_id == 'linked' else {},
+    )
+    monkeypatch.setattr(
+        SystemStats,
+        '_sample_links',
+        lambda resource_id: {'sample': 'url'} if resource_id == 'linked' else {},
+    )
+
+    assert SystemStats.get_linked_machines_count(datasets) == (1, 1)
+    assert SystemStats.get_linked_samples_count(datasets) == (1, 1)
+    assert SystemStats.get_dataset_with_machines(datasets) == ['Linked dataset']
+    assert SystemStats.get_dataset_with_samples(datasets) == ['Linked dataset']
+
+
+def test_publication_statistics_include_linked_datasets_and_groups(monkeypatch):
+    group = SimpleNamespace(
+        title='Research group',
+        state='active',
+        is_organization=False,
+    )
+    datasets = [
+        SimpleNamespace(
+            name='linked',
+            title='Linked dataset',
+            get_groups=lambda: [group],
+        ),
+        SimpleNamespace(
+            name='unlinked',
+            title='Unlinked dataset',
+            get_groups=lambda: [group],
+        ),
+    ]
+    monkeypatch.setattr(
+        Helper,
+        'check_plugin_enabled',
+        lambda name: name == 'dataset_reference',
+    )
+    monkeypatch.setattr(
+        SystemStats,
+        '_publication_links',
+        lambda dataset: [object()] if dataset.name == 'linked' else [],
+    )
+
+    assert SystemStats.get_linked_publications_count(datasets) == 1
+    assert SystemStats.get_dataset_with_publication(datasets) == [
+        'Linked dataset'
+    ]
+    assert SystemStats.get_dataset_with_publication_per_group(datasets) == {
+        'Research group': ['Linked dataset']
+    }
 
 
 @pytest.mark.parametrize(

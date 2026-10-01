@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ super() }}
+  {% if h.system_stats_is_sfb_1368() %}
+    {{ h.build_nav_icon('system_stats.stats_page', _('Statistics'), icon='fa fa-line-chart') }}
+  {% endif %}
+{% endblock content_primary_nav %}

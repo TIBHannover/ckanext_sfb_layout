@@ -1,0 +1,79 @@
+{% extends "admin/config.html" %}
+
+{% block primary_content_inner %}
+  <h3>{{ _('Overall stats') }}</h3>
+  <ul>
+    <li>{{ _('Number of Datasets:') }} {{ result['Number of Datasets'] }}</li>
+    <li>{{ _('Number of Organizations:') }} {{ result['Number of Organizations'] }}</li>
+    <li>{{ _('Number of Groups:') }} {{ result['Number of Groups'] }}</li>
+    <li>{{ _('Number of Users (system admins excluded):') }} {{ result['Number of Users'] }}</li>
+    <li>{{ _('Number of data resources linked to a machine (device):') }} {{ result['Number of machines resource'] }}</li>
+    <li>{{ _('Number of datasets with data resources linked to a machine (device):') }} {{ result['Number of machines dataset'] }}</li>
+    <li>{{ _('Number of data resources linked to a sample:') }} {{ result['Number of samples resource'] }}</li>
+    <li>{{ _('Number of datasets with data resources linked to a sample:') }} {{ result['Number of samples dataset'] }}</li>
+    <li>{{ _('Number of datasets linked to publication(s):') }} {{ result['Number of datasets linked to publication'] }}</li>
+  </ul>
+
+  <hr>
+  <h3>{{ _('Detailed stats') }}</h3>
+
+  <h5>{{ _('Dataset count per organization:') }}</h5>
+  <ul>
+    {% for organization, count in result['dataset_per_org'].items() %}
+      <li>{{ organization }}: {{ count }}</li>
+    {% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Dataset count per group:') }}</h5>
+  <ul>
+    {% for group, count in result['dataset_per_group'].items() %}
+      <li>{{ group }}: {{ count }}</li>
+    {% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Data resources per type:') }}</h5>
+  <ul>
+    {% for resource_type, count in result['resource_per_type'].items() %}
+      <li>{{ resource_type }}: {{ count }}</li>
+    {% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Datasets linked to publication(s):') }} ({{ result['datasets_with_publication']|length }})</h5>
+  <ul>
+    {% for title in result['datasets_with_publication'] %}<li>{{ title }}</li>{% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Datasets with data resources linked to machine(s):') }} ({{ result['datasets_with_machines']|length }})</h5>
+  <ul>
+    {% for title in result['datasets_with_machines'] %}<li>{{ title }}</li>{% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Datasets with data resources linked to sample(s):') }} ({{ result['datasets_with_samples']|length }})</h5>
+  <ul>
+    {% for title in result['datasets_with_samples'] %}<li>{{ title }}</li>{% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Datasets with custom annotation fields:') }} ({{ result['datasets_with_annotaion']|length }})</h5>
+  <ul>
+    {% for title in result['datasets_with_annotaion'] %}<li>{{ title }}</li>{% endfor %}
+  </ul>
+
+  <hr>
+  <h5>{{ _('Groups with datasets linked to publications:') }}</h5>
+  <ul>
+    {% for group, datasets in result['group_with_datasets_with_publication'].items() %}
+      <li>
+        <strong>{{ group }} ({{ datasets|length }})</strong>
+        <ul>
+          {% for title in datasets %}<li>{{ title }}</li>{% endfor %}
+        </ul>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
