@@ -2,9 +2,9 @@
   max-width: 100%;
 }
 
-.sfb-header-container{
-  margin-left: 10px;
-  margin-right: 10px;
+.masthead > .container,
+.account-masthead > .container {
+  max-width: none;
 }
 
 .simple-input{
