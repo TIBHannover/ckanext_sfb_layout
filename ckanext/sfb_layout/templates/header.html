@@ -5,7 +5,7 @@
 {% block header_site_navigation_tabs %}
   {% set org_type = h.default_group_type('organization') %}
   {% set group_type = h.default_group_type('group') %}
-  {% if h.is_enabled('user_manual') and h.is_enabled('sparql_interface') %}
+  {% if h.is_enabled('user_manual') and h.sparql_interface_enabled() %}
     {{ h.build_nav_main(
       (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ['dataset', 'resource']),
       (org_type ~ '.index', h.humanize_entity_type('organization', org_type, 'main nav') or _('Organizations'), ['organization']),

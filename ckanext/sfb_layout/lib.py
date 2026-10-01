@@ -33,7 +33,6 @@ class Helper():
         if isinstance(configured_plugins, str):
             configured_plugins = configured_plugins.split()
         return plugin_name in configured_plugins
-    
 
     @staticmethod
     def stages_count():
