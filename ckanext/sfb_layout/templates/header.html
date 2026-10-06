@@ -2,6 +2,17 @@
 
 {% set dataset_type = h.default_package_type() %}
 
+{% block header_logo %}
+  {% if g.site_logo %}
+    <a class="logo" href="{{ h.url_for('home.index') }}">
+      <img src="{{ h.sfb_site_logo_url(g.site_logo) }}"
+           alt="{{ g.site_title }}" title="{{ g.site_title }}" />
+    </a>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block header_site_navigation_tabs %}
   {% set org_type = h.default_group_type('organization') %}
   {% set group_type = h.default_group_type('group') %}

@@ -63,6 +63,34 @@ def test_plugin_loads(with_plugins):
     assert plugins.plugin_loaded('sfb_layout')
 
 
+def test_plugin_registers_site_logo_helper():
+    helpers = SfbLayoutPlugin().get_helpers()
+
+    assert helpers['sfb_site_logo_url'] is Helper.site_logo_url
+
+
+@pytest.mark.parametrize(
+    ('root_path', 'site_logo', 'expected'),
+    [
+        ('/sfb1368/{{LANG}}', '/base/images/logo.png',
+         '/sfb1368/base/images/logo.png'),
+        ('/sfb1153/{{LANG}}', 'base/images/logo.png',
+         '/sfb1153/base/images/logo.png'),
+        ('', '/base/images/logo.png', '/base/images/logo.png'),
+        ('/sfb1368/{{LANG}}', '/sfb1368/base/images/logo.png',
+         '/sfb1368/base/images/logo.png'),
+        ('/sfb1368/{{LANG}}', 'https://example.test/logo.png',
+         'https://example.test/logo.png'),
+    ],
+)
+def test_site_logo_url_respects_deployment_prefix(
+    monkeypatch, root_path, site_logo, expected
+):
+    monkeypatch.setitem(toolkit.config, 'ckan.root_path', root_path)
+
+    assert Helper.site_logo_url(site_logo) == expected
+
+
 def test_blueprint_registers_json_export_route():
     blueprint = SfbLayoutPlugin().get_blueprint()
     flask_app = Flask(__name__)

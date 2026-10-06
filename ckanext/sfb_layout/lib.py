@@ -1,11 +1,32 @@
 # encoding: utf-8
 
-import ckan.plugins.toolkit as toolkit
+from urllib.parse import urlsplit
+
 import ckan.lib.helpers as h
+import ckan.plugins.toolkit as toolkit
 
 
 
 class Helper():
+
+    @staticmethod
+    def site_logo_url(site_logo):
+        """Return a local logo URL including CKAN's deployment prefix."""
+        if not site_logo:
+            return site_logo
+
+        parsed_logo = urlsplit(site_logo)
+        if parsed_logo.scheme or parsed_logo.netloc:
+            return site_logo
+
+        logo_path = '/' + site_logo.lstrip('/')
+        root_path = str(toolkit.config.get('ckan.root_path') or '')
+        path_prefix = root_path.split('{{LANG}}', 1)[0].rstrip('/')
+
+        if path_prefix and not logo_path.startswith(path_prefix + '/'):
+            return path_prefix + logo_path
+
+        return logo_path
 
     @staticmethod
     def which_sfb():

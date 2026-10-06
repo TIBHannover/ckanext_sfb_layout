@@ -36,7 +36,8 @@ class SfbLayoutPlugin(plugins.SingletonPlugin):
     
 
     def get_helpers(self):
-        return {'which_sfb': Helper.which_sfb, 
+        return {'which_sfb': Helper.which_sfb,
+            'sfb_site_logo_url': Helper.site_logo_url,
             'is_enabled': Helper.check_plugin_enabled,
             'stages_count': Helper.stages_count, 
             'set_stages': Helper.set_stages,
