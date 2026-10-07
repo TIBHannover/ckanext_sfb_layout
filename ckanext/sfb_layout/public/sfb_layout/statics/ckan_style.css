@@ -104,6 +104,15 @@
   background-color:#1D602B;
 }
 
+.account-masthead .account a[href$="/user/_logout"] {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.account-masthead .account a[href$="/user/_logout"]:hover,
+.account-masthead .account a[href$="/user/_logout"]:focus {
+  color: #fff;
+}
+
 
 /* ========================================================================
    The main masthead bar that contains the site logo, nav links, and search
