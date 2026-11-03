@@ -95,25 +95,14 @@
 
 /* The text and icons in the user account info. */
 .account-masthead .account ul li a {
-  color: rgba(255, 255, 255, 0.6);
+  color: #fff;
 }
 /* The user account info text and icons, when the user's pointer is hovering
    over them. */
-.account-masthead .account ul li a:hover {
-  color: rgba(255, 255, 255, 0.7);
+.account-masthead .account ul li a:hover,
+.account-masthead .account ul li a:focus {
+  color: #fff;
   background-color:#1D602B;
-}
-
-.account-masthead .account a[href$="/user/_logout"],
-.account-masthead .account a[href$="/user/_logout"] .fa,
-.account-masthead .account a[href$="/user/_logout"] .text {
-  color: #fff;
-}
-
-.account-masthead .account a[href$="/user/_logout"]:hover,
-.account-masthead .account a[href$="/user/_logout"]:focus {
-  color: #fff;
-  background-color: #1D602B;
   outline: 2px solid #fff;
   outline-offset: -2px;
 }
