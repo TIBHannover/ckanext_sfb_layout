@@ -58,6 +58,19 @@ def test_project_stylesheets_use_full_width_layout(stylesheet):
     assert 'max-width: 100%;' in css
 
 
+def test_ckan_211_logout_link_is_white_and_has_visible_interaction_states():
+    css = (ASSET_ROOT / 'ckan_style.css').read_text()
+
+    selector = '.account-masthead .account a[href$="/user/_logout"]'
+    assert selector in css
+    assert selector + ' .fa' in css
+    assert selector + ' .text' in css
+    assert 'color: #fff;' in css
+    assert selector + ':hover' in css
+    assert selector + ':focus' in css
+    assert 'outline: 2px solid #fff;' in css
+
+
 @pytest.mark.ckan_config('ckan.plugins', 'sfb_layout')
 def test_plugin_loads(with_plugins):
     assert plugins.plugin_loaded('sfb_layout')

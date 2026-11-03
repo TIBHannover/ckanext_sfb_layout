@@ -104,13 +104,18 @@
   background-color:#1D602B;
 }
 
-.account-masthead .account a[href$="/user/_logout"] {
-  color: rgba(255, 255, 255, 0.9);
+.account-masthead .account a[href$="/user/_logout"],
+.account-masthead .account a[href$="/user/_logout"] .fa,
+.account-masthead .account a[href$="/user/_logout"] .text {
+  color: #fff;
 }
 
 .account-masthead .account a[href$="/user/_logout"]:hover,
 .account-masthead .account a[href$="/user/_logout"]:focus {
   color: #fff;
+  background-color: #1D602B;
+  outline: 2px solid #fff;
+  outline-offset: -2px;
 }
 
 
